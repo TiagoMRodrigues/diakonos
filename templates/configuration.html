@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.min.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+
+    <script>
+        var app = angular.module("myShoppingList", []);
+        app.config(['$interpolateProvider', function($interpolateProvider) {
+          $interpolateProvider.startSymbol('{a');
+          $interpolateProvider.endSymbol('a}');
+        }]);
+        app.controller("myCtrl", function($scope) {
+            $scope.lists = {{ initial_json }};
+
+            $scope.addList= function () {
+
+                if (!$scope.addList) {return;}
+                for(_l in $scope.list){
+                    if(_l.name === $scope.newList){
+                        $scope.errortext = "A lista ja existe";
+                        return;
+                    }
+                }
+                l = {}
+                l.errortext = "";
+                l.products = []
+                l.name = $scope.newList
+                $scope.lists.push(l);
+
+
+                $scope.newList = ""
+                send();
+
+            }
+            $scope.removeList = function (x) {
+                $scope.errortext = "";
+                $scope.lists.splice(x, 1);
+                send();
+            }
+
+            $scope.receiveJSON = function (x) {
+                $.ajax({
+                    type: "POST",
+                    url: "send_config",
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    success: function (result) {
+                        $scope.lists = JSON.parse(result);
+                    },
+                    error: function (error) {
+
+                    }
+                });
+
+                return ""
+            }
+
+            $scope.addItem = function (l) {
+                l.errortext = "";
+                if (l.addMe) {return;}
+
+                for(p in l.products){
+                    if(p.newProduct === l.newProduct){
+                        l.errortext = "O item ja existe";
+                        return;
+                    }
+                }
+                l.products.push({"name":l.newProduct, "price":l.newPrice});
+                l.newProduct = "";
+                l.newPrice = "";
+
+                send();
+            }
+
+            $scope.removeItem = function (l,x) {
+                l.errortext = "";
+                l.products.splice(x, 1);
+                send();
+            }
+
+            function send(){
+                 $.ajax({
+                        type: "POST",
+                        url: "receive_config",
+                        data: JSON.stringify($scope.lists),
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        success: function (result) {
+
+                        },
+                        error: function (error) {
+
+                        }
+                    });
+            }
+
+
+        });
+
+
+
+    </script>
+</head>
+<body>
+
+<div ng-app="myShoppingList" ng-cloak ng-controller="myCtrl" class="w3-card-2 w3-margin" style="max-width:400px;">
+    <div ng-repeat="l in lists">
+        <header class="w3-container w3-light-grey w3-padding-5">
+            <span ng-click="removeList($index)" style="cursor:pointer;" class="w3-right w3-margin-right"><i class="fa fa-times" aria-hidden="true"></i></span>
+            <h3>{a l.name a}</h3>
+        </header>
+        <ul class="w3-ul">
+            <li ng-repeat="x in l.products" class="w3-padding-5">
+                <div style="display: inline; width:70%; display: inline-block;">{a x["name"] a}</div>
+                <div style="display: inline; width:20%; display: inline-block;">{a x["price"] | number : 2 a}€</div>
+                <div style="display: inline; width:5%; display: inline-block;"><span ng-click="removeItem(l,$index)" style="cursor:pointer;" class="w3-right w3-margin-right"><i class="fa fa-times" aria-hidden="true"></i></span></div>
+            </li>
+        </ul>
+        <div class="w3-container w3-light-grey w3-padding-5">
+            <div class="w3-row w3-margin-top">
+                <div class="w3-col s6">
+                    <input placeholder="Add shopping items here" ng-model="l.newProduct" class="w3-input w3-border w3-padding">
+                </div>
+                <div class="w3-col s4">
+                    <input placeholder="Preço" ng-model="l.newPrice" class="w3-input w3-border w3-padding">
+                </div>
+                <div class="w3-col s2">
+                    <button ng-click="addItem(l)" class="w3-btn w3-padding w3-green">Add</button>
+                </div>
+            </div>
+            <p class="w3-text-red">{a errortext a}</p>
+        </div>
+    </div>
+    <div class="w3-container w3-light-grey w3-padding-16">
+        <div class="w3-row w3-margin-top">
+            <div class="w3-col s10">
+                <input placeholder="Adicionar categoria" ng-model="newList" class="w3-input w3-border w3-padding">
+            </div>
+            <div class="w3-col s2">
+                <button ng-click="addList()" class="w3-btn w3-padding w3-green">Add</button>
+            </div>
+        </div>
+        <p class="w3-text-red">{a errortext a}</p>
+    </div>
+
+</div>
+
+</body>
+</html>

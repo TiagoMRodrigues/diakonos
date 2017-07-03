@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.min.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+        <script>
+        var app = angular.module("myShoppingList", []);
+        app.config(['$interpolateProvider', function($interpolateProvider) {
+          $interpolateProvider.startSymbol('{a');
+          $interpolateProvider.endSymbol('a}');
+        }]);
+        app.controller("myCtrl", function($scope) {
+            $scope.lists = {{ initial_json }};
+            $scope.added = [];
+            $scope.total = 0;
+
+            $scope.add = function (l) {
+                if($scope.added.length>0 && $scope.added[$scope.added.length-1]["name"] == l["name"]){
+                  $scope.added[$scope.added.length-1]["count"]+=1;
+                }
+                else{
+                  $scope.added.push({"name":l["name"], "price":l["price"], "count":1});
+                }
+                total();
+            }
+            $scope.removeItem = function (x) {
+                $scope.added.splice(x, 1);
+                total();
+            }
+            $scope.reset = function (x) {
+                $scope.added=[];
+                $scope.given=0;
+                total();
+            }
+            function total(){
+                $scope.total = 0;
+                for(x=0; x<$scope.added.length; x++){
+                    $scope.total += $scope.added[x]["count"] * $scope.added[x]["price"]
+                }
+            }
+
+        });
+
+    </script>
+
+
+<style>
+    .btn-matrix > .btn:nth-child(5n+6) {
+      clear: left;
+      margin-left: 0;
+    }
+    .btn-matrix > .btn:nth-child(5n+5) {
+      margin-top: -1px;
+    }
+    .btn-matrix > .btn:first-child {
+      border-bottom-left-radius: 0;
+    }
+    .btn-matrix > .btn:nth-child(5) {
+      border-top-right-radius: 4px !important;
+    }
+    .btn-matrix > .btn:nth-last-child(5) {
+      border-bottom-left-radius: 4px !important;
+    }
+    .btn-matrix > .btn:last-child {
+      border-top-right-radius: 0;
+    }
+
+</style>
+<body>
+
+<div ng-app="myShoppingList" ng-cloak ng-controller="myCtrl">
+    <div style="display: inline; width:60%; display: inline-block; position: relative; ">
+        <div ng-repeat="l in lists">
+          <h3>{a l.name a}</h3>
+          <div ng-repeat="x in l.products" class="btn-group btn-matrix">
+             <button ng-click="add(x)" type="button" class="btn btn-default" >{a x["name"] a}</button>
+          </div>
+        </div>
+    </div>
+    <div style="display: inline; width:35%; display: inline-block; position: absolute; top: 0px; ">
+        <button ng-click="reset()" type="button" class="btn btn-default" >Reiniciar</button>
+        <header class="w3-container w3-light-grey w3-padding-5">
+              <h3>Adicionado:</h3>
+        </header>
+          <ul class="w3-ul">
+              <li ng-repeat="x in added" class="w3-padding-5">
+                  <div style="display: inline; width:10%; display: inline-block;">{a x["count"] a}</div>
+                  <div style="display: inline; width:60%; display: inline-block;">{a x["name"] a}</div>
+                  <div style="display: inline; width:20%; display: inline-block;">{a x["price"] | number : 2 a}€</div>
+                  <div style="display: inline; width:5%; display: inline-block;"><span ng-click="removeItem($index)" style="cursor:pointer;" class="w3-right w3-margin-right"><i class="fa fa-times" aria-hidden="true"></i></span></div>
+              </li>
+        </ul>
+        <header class="w3-container w3-light-grey w3-padding-5">
+              <h3>Total: {a total | number : 2 a}</h3>
+            <label for="return1"> <h3>Pago:&nbsp;</h3></label><input id="return1" type="text" pattern="\d*" placeholder="Quantia" ng-model="given" class="w2-input w2-border w2-padding">
+              <h3>Troco: {a given-total | number : 2 a}</h3>
+        </header>
+
+
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
