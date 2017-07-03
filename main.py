@@ -51,7 +51,7 @@ class Root:
 
 
 cherrypy.quickstart(Root(), "/", config={
-		'global':{'server.socket_host': '127.0.0.1',
+		'global':{'server.socket_host': '0.0.0.0',
 					'server.socket_port': 8080
 		 },
 		'/': {
